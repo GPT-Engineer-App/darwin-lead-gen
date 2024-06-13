@@ -1,6 +1,5 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import saveIcpRouter from './api/save-icp';
 import saveBuyerPersonaRouter from './api/save-buyer-persona';
 import attachPersonaToCampaignRouter from './api/attach-persona-to-campaign';
 
@@ -8,7 +7,6 @@ const app = express();
 const port = 3000;
 
 app.use(bodyParser.json());
-app.use('/api', saveIcpRouter);
 app.use('/api', saveBuyerPersonaRouter);
 app.use('/api', attachPersonaToCampaignRouter);
 

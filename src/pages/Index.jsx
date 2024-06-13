@@ -13,6 +13,7 @@ const Index = () => {
   const [buyerPersona, setBuyerPersona] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [campaignId, setCampaignId] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -32,14 +33,14 @@ const Index = () => {
 
       // Generate buyer persona
       const response = await axios.post("/api/generate-buyer-persona", icpData);
-      setBuyerPersona(response.data);
+      const generatedPersona = response.data;
+      setBuyerPersona(generatedPersona);
 
       // Save buyer persona
-      await axios.post("/api/save-buyer-persona", response.data);
+      await axios.post("/api/save-buyer-persona", generatedPersona);
 
-      // Attach buyer persona to campaign (assuming campaignId is available)
-      const campaignId = "some-campaign-id"; // Replace with actual campaign ID
-      await axios.post("/api/attach-persona-to-campaign", { campaignId, buyerPersona: response.data });
+      // Attach buyer persona to campaign
+      await axios.post("/api/attach-persona-to-campaign", { campaignId, personaId: generatedPersona.id });
     } catch (err) {
       setError("An error occurred while processing your request.");
     } finally {
@@ -70,6 +71,10 @@ const Index = () => {
             <FormControl id="customerGoals" isRequired>
               <FormLabel>Customer Goals</FormLabel>
               <Textarea name="customerGoals" value={icpData.customerGoals} onChange={handleChange} placeholder="Describe your customer's goals" />
+            </FormControl>
+            <FormControl id="campaignId" isRequired>
+              <FormLabel>Campaign ID</FormLabel>
+              <Input name="campaignId" value={campaignId} onChange={(e) => setCampaignId(e.target.value)} placeholder="Enter the campaign ID" />
             </FormControl>
             <Button type="submit" colorScheme="blue" size="lg" width="100%" isLoading={loading}>
               Submit
