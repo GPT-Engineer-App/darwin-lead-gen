@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.post('/save-buyer-persona', (req, res) => {
   const buyerPersona = req.body;
-  const filePath = path.join(__dirname, 'buyerPersonas.json');
+  const filePath = path.join(__dirname, 'data', 'buyerPersonas.json');
 
   fs.readFile(filePath, 'utf8', (err, data) => {
     if (err && err.code !== 'ENOENT') {
@@ -14,7 +14,16 @@ router.post('/save-buyer-persona', (req, res) => {
       return res.status(500).json({ error: 'Failed to read buyer personas file' });
     }
 
-    const buyerPersonas = data ? JSON.parse(data) : [];
+    let buyerPersonas = [];
+    if (data) {
+      try {
+        buyerPersonas = JSON.parse(data);
+      } catch (parseErr) {
+        console.error('Error parsing buyer personas file:', parseErr);
+        return res.status(500).json({ error: 'Failed to parse buyer personas file' });
+      }
+    }
+
     buyerPersonas.push(buyerPersona);
 
     fs.writeFile(filePath, JSON.stringify(buyerPersonas, null, 2), (err) => {

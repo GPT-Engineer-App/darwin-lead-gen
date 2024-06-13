@@ -40,6 +40,9 @@ const Index = () => {
       // Attach buyer persona to campaign (assuming campaignId is available)
       const campaignId = "some-campaign-id"; // Replace with actual campaign ID
       await axios.post("/api/attach-persona-to-campaign", { campaignId, buyerPersona: response.data });
+
+      // Call new API endpoint
+      await axios.post("/api/new-endpoint", { campaignId, buyerPersona: response.data });
     } catch (err) {
       setError("An error occurred while processing your request.");
     } finally {

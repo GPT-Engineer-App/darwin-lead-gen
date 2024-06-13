@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.post('/attach-persona-to-campaign', (req, res) => {
   const { campaignId, buyerPersona } = req.body;
-  const filePath = path.join(__dirname, 'campaigns.json');
+  const filePath = path.join(__dirname, 'data', 'campaigns.json'); // Ensure correct file path
 
   fs.readFile(filePath, 'utf8', (err, data) => {
     if (err && err.code !== 'ENOENT') {
@@ -14,7 +14,16 @@ router.post('/attach-persona-to-campaign', (req, res) => {
       return res.status(500).json({ error: 'Failed to read campaigns file' });
     }
 
-    const campaigns = data ? JSON.parse(data) : [];
+    let campaigns = [];
+    if (data) {
+      try {
+        campaigns = JSON.parse(data);
+      } catch (parseErr) {
+        console.error('Error parsing campaigns file:', parseErr);
+        return res.status(500).json({ error: 'Failed to parse campaigns file' });
+      }
+    }
+
     const campaign = campaigns.find(c => c.id === campaignId);
 
     if (!campaign) {
