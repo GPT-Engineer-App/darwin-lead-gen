@@ -1,5 +1,6 @@
-import { Container, VStack, Heading, FormControl, FormLabel, Input, Textarea, Button } from "@chakra-ui/react";
+import { Container, VStack, Heading, FormControl, FormLabel, Input, Textarea, Button, Box, Text } from "@chakra-ui/react";
 import { useState } from "react";
+import axios from "axios";
 
 const Index = () => {
   const [icpData, setIcpData] = useState({
@@ -9,6 +10,10 @@ const Index = () => {
     customerGoals: "",
   });
 
+  const [buyerPersona, setBuyerPersona] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setIcpData((prevData) => ({
@@ -17,10 +22,22 @@ const Index = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("ICP Data Submitted:", icpData);
-    // Here you can add the logic to send the data to the backend or perform any other actions
+    setLoading(true);
+    setError(null);
+    try {
+      // Save ICP data
+      await axios.post("/api/save-icp", icpData);
+
+      // Generate buyer persona
+      const response = await axios.post("/api/generate-buyer-persona", icpData);
+      setBuyerPersona(response.data);
+    } catch (err) {
+      setError("An error occurred while processing your request.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -47,11 +64,24 @@ const Index = () => {
               <FormLabel>Customer Goals</FormLabel>
               <Textarea name="customerGoals" value={icpData.customerGoals} onChange={handleChange} placeholder="Describe your customer's goals" />
             </FormControl>
-            <Button type="submit" colorScheme="blue" size="lg" width="100%">
+            <Button type="submit" colorScheme="blue" size="lg" width="100%" isLoading={loading}>
               Submit
             </Button>
           </VStack>
         </form>
+        {error && (
+          <Box mt={4} p={4} bg="red.100" borderRadius="md">
+            <Text color="red.800">{error}</Text>
+          </Box>
+        )}
+        {buyerPersona && (
+          <Box mt={4} p={4} bg="green.100" borderRadius="md">
+            <Heading as="h2" size="lg" mb={4}>
+              Generated Buyer Persona
+            </Heading>
+            <Text>{buyerPersona}</Text>
+          </Box>
+        )}
       </VStack>
     </Container>
   );
