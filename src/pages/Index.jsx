@@ -33,6 +33,13 @@ const Index = () => {
       // Generate buyer persona
       const response = await axios.post("/api/generate-buyer-persona", icpData);
       setBuyerPersona(response.data);
+
+      // Save buyer persona
+      await axios.post("/api/save-buyer-persona", response.data);
+
+      // Attach buyer persona to campaign (assuming campaignId is available)
+      const campaignId = "some-campaign-id"; // Replace with actual campaign ID
+      await axios.post("/api/attach-persona-to-campaign", { campaignId, buyerPersona: response.data });
     } catch (err) {
       setError("An error occurred while processing your request.");
     } finally {
@@ -79,7 +86,7 @@ const Index = () => {
             <Heading as="h2" size="lg" mb={4}>
               Generated Buyer Persona
             </Heading>
-            <Text>{buyerPersona}</Text>
+            <Text>{JSON.stringify(buyerPersona, null, 2)}</Text>
           </Box>
         )}
       </VStack>
